@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Interior Design Style Quiz Demo</title>
+  </head>
+  <body style="background:#e2e8f0; font-family: 'Inter', sans-serif; padding: 3rem;">
+    <div id="idsq-root"></div>
+
+    <script src="./idsq-quiz.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        if (window.IDSQ && typeof window.IDSQ.buildQuiz === 'function') {
+          window.IDSQ.buildQuiz({
+            airtable: {
+              enable: false,
+            },
+          });
+        }
+      });
+    </script>
+  </body>
+</html>
