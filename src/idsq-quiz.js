@@ -2,9 +2,11 @@
   const DEFAULT_CONFIG = {
     mountSelector: '#idsq-root',
     brand: {
-      primaryColor: '#1E3A8A',
-      accentColor: '#F59E0B',
-      fontFamily: "'Inter', sans-serif",
+      primaryColor: '#006bea',
+      accentColor: '#006bea',
+      textColor: '#363636',
+      fontFamily: "'Montserrat', sans-serif",
+      fontUrl: 'https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap',
       logoUrl: null,
     },
     copy: {
@@ -210,6 +212,46 @@
     return el;
   }
 
+  function injectFont(config) {
+    if (!config.brand || !config.brand.fontUrl) return;
+    const existing = document.querySelector(`link[href="${config.brand.fontUrl}"]`);
+    if (existing) return;
+    const preconnect1 = document.createElement('link');
+    preconnect1.rel = 'preconnect';
+    preconnect1.href = 'https://fonts.googleapis.com';
+    const preconnect2 = document.createElement('link');
+    preconnect2.rel = 'preconnect';
+    preconnect2.href = 'https://fonts.gstatic.com';
+    preconnect2.crossOrigin = 'anonymous';
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = config.brand.fontUrl;
+    document.head.appendChild(preconnect1);
+    document.head.appendChild(preconnect2);
+    document.head.appendChild(link);
+  }
+
+  function showSection(mount, section) {
+    const previous = mount.firstElementChild;
+    if (!previous) {
+      mount.innerHTML = '';
+      mount.appendChild(section);
+      requestAnimationFrame(() => section.classList.add('idsq-animate-in'));
+      return;
+    }
+    previous.classList.remove('idsq-animate-in');
+    previous.classList.add('idsq-animate-out');
+    previous.addEventListener(
+      'animationend',
+      () => {
+        mount.innerHTML = '';
+        mount.appendChild(section);
+        requestAnimationFrame(() => section.classList.add('idsq-animate-in'));
+      },
+      { once: true }
+    );
+  }
+
   function renderIntro(config, mount, handlers) {
     const intro = createElement('section', 'idsq-intro');
     const title = createElement('h2', 'idsq-title');
@@ -232,8 +274,7 @@
       intro.insertBefore(logo, intro.firstChild);
     }
 
-    mount.innerHTML = '';
-    mount.appendChild(intro);
+    showSection(mount, intro);
   }
 
   function renderStep(config, mount, state, handlers) {
@@ -269,8 +310,7 @@
     section.appendChild(prompt);
     section.appendChild(grid);
 
-    mount.innerHTML = '';
-    mount.appendChild(section);
+    showSection(mount, section);
   }
 
   function renderLeadCapture(config, mount, handlers) {
@@ -306,8 +346,7 @@
     section.appendChild(title);
     section.appendChild(form);
 
-    mount.innerHTML = '';
-    mount.appendChild(section);
+    showSection(mount, section);
   }
 
   function createInputField(labelText, type, name, required = false) {
@@ -374,8 +413,7 @@
     section.appendChild(description);
     section.appendChild(grid);
 
-    mount.innerHTML = '';
-    mount.appendChild(section);
+    showSection(mount, section);
   }
 
   function renderLoading(config, mount) {
@@ -383,8 +421,7 @@
     const title = createElement('h2', 'idsq-title');
     title.textContent = config.copy.loadingMessage;
     section.appendChild(title);
-    mount.innerHTML = '';
-    mount.appendChild(section);
+    showSection(mount, section);
   }
 
   function renderError(config, mount, handlers) {
@@ -399,8 +436,7 @@
     section.appendChild(title);
     section.appendChild(description);
     section.appendChild(retry);
-    mount.innerHTML = '';
-    mount.appendChild(section);
+    showSection(mount, section);
   }
 
   function renderSuccess(config, mount, state, handlers) {
@@ -441,8 +477,7 @@
     section.appendChild(card);
     section.appendChild(restart);
 
-    mount.innerHTML = '';
-    mount.appendChild(section);
+    showSection(mount, section);
   }
 
   function validateEmail(email) {
@@ -511,18 +546,22 @@
     style.textContent = `
       :root {
         --idsq-primary: ${config.brand.primaryColor};
-        --idsq-accent: ${config.brand.accentColor};
+        --idsq-accent: ${config.brand.accentColor || config.brand.primaryColor};
         --idsq-font: ${config.brand.fontFamily};
+        --idsq-text: ${config.brand.textColor || '#363636'};
+        --idsq-bg: #ffffff;
+        --idsq-black: #000000;
       }
       #idsq {
         font-family: var(--idsq-font);
-        color: #111827;
+        color: var(--idsq-text);
         max-width: 960px;
         margin: 0 auto;
         padding: 1.5rem;
-        background-color: #ffffff;
+        background-color: var(--idsq-bg);
         border-radius: 24px;
         box-shadow: 0 20px 45px rgba(15, 23, 42, 0.12);
+        position: relative;
       }
       #idsq * {
         box-sizing: border-box;
@@ -530,13 +569,13 @@
       .idsq-title {
         font-size: clamp(1.6rem, 2vw + 1rem, 2.5rem);
         margin-bottom: 0.75rem;
-        color: #0f172a;
+        color: var(--idsq-text);
         text-align: center;
       }
       .idsq-description {
         font-size: 1rem;
         margin-bottom: 1.5rem;
-        color: #475569;
+        color: rgba(54, 54, 54, 0.85);
         text-align: center;
         line-height: 1.5;
       }
@@ -556,17 +595,21 @@
       .idsq-button-primary {
         background: var(--idsq-primary);
         color: #ffffff;
-        box-shadow: 0 10px 25px rgba(30, 58, 138, 0.25);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
       }
       .idsq-button-primary:hover {
         transform: translateY(-1px);
-        box-shadow: 0 12px 30px rgba(30, 58, 138, 0.35);
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.22);
       }
       .idsq-button-secondary {
         background: transparent;
         color: var(--idsq-primary);
         border-color: var(--idsq-primary);
       }
+      @keyframes idsqFadeInUp { from { opacity: 0; transform: translateY(8px) } to { opacity: 1; transform: translateY(0) } }
+      @keyframes idsqFadeOut { from { opacity: 1 } to { opacity: 0 } }
+      .idsq-animate-in { animation: idsqFadeInUp 280ms ease both; }
+      .idsq-animate-out { animation: idsqFadeOut 220ms ease both; }
       .idsq-intro,
       .idsq-step,
       .idsq-final,
@@ -621,11 +664,11 @@
       .idsq-option-title {
         font-size: 1.2rem;
         margin: 0;
-        color: #0f172a;
+        color: var(--idsq-text);
       }
       .idsq-option-description {
         font-size: 0.95rem;
-        color: #475569;
+        color: rgba(54, 54, 54, 0.85);
         margin: 0;
         line-height: 1.5;
       }
@@ -634,7 +677,7 @@
         grid-template-columns: repeat(3, 1fr);
         gap: 2px;
         width: 100%;
-        background-color: #0f172a;
+        background-color: var(--idsq-black);
       }
       .idsq-final-image {
         height: 120px;
@@ -659,7 +702,7 @@
       }
       .idsq-field-label {
         font-size: 0.95rem;
-        color: #0f172a;
+        color: var(--idsq-text);
         font-weight: 600;
       }
       .idsq-input {
@@ -673,9 +716,21 @@
       }
       .idsq-input:focus {
         border-color: var(--idsq-primary);
-        box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.2);
+        box-shadow: 0 0 0 3px rgba(0, 107, 234, 0.2);
         outline: none;
       }
+      /* AI Guide widget */
+      .idsq-ai-toggle { position: absolute; right: 16px; bottom: 16px; z-index: 20; }
+      .idsq-ai-panel { position: absolute; right: 16px; bottom: 72px; width: min(360px, calc(100% - 32px)); background: #fff; border: 1px solid rgba(0,0,0,0.08); border-radius: 16px; box-shadow: 0 12px 30px rgba(0,0,0,0.18); overflow: hidden; display: none; }
+      .idsq-ai-panel.open { display: flex; flex-direction: column; }
+      .idsq-ai-header { padding: 0.75rem 1rem; font-weight: 600; color: var(--idsq-text); border-bottom: 1px solid rgba(0,0,0,0.06); }
+      .idsq-ai-messages { max-height: 260px; overflow-y: auto; padding: 0.75rem 1rem; display: flex; flex-direction: column; gap: 0.5rem; }
+      .idsq-ai-msg { font-size: 0.95rem; line-height: 1.35; padding: 0.5rem 0.75rem; border-radius: 10px; }
+      .idsq-ai-msg.user { align-self: flex-end; background: rgba(0, 107, 234, 0.10); color: var(--idsq-text); }
+      .idsq-ai-msg.assistant { align-self: flex-start; background: #f3f4f6; color: var(--idsq-text); }
+      .idsq-ai-input { display: flex; gap: 0.5rem; padding: 0.75rem; border-top: 1px solid rgba(0,0,0,0.06); }
+      .idsq-ai-input input { flex: 1; border: 1px solid #e5e7eb; border-radius: 10px; padding: 0.5rem 0.75rem; }
+      .idsq-ai-input button { white-space: nowrap; }
       .idsq-alert {
         width: 100%;
         padding: 0.75rem 1rem;
@@ -710,6 +765,7 @@
       return;
     }
     mount.id = 'idsq';
+    injectFont(config);
     injectStyles(config);
 
     const state = {
