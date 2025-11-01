@@ -900,9 +900,12 @@
         mount.appendChild(section);
         requestAnimationFrame(() => {
           section.classList.add('idsq-animate-in');
-          // Scroll to top of quiz container on each selection
+          // Scroll to top of quiz container on each selection, with offset for fixed header
           if (mount && mount.id === 'idsq') {
-            mount.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            const rect = mount.getBoundingClientRect();
+            const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+            const target = scrollTop + rect.top - 100; // Offset by 100px for header
+            window.scrollTo({ top: target, behavior: 'smooth' });
           } else {
             window.scrollTo({ top: 0, behavior: 'smooth' });
           }
