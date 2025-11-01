@@ -904,7 +904,7 @@
           if (mount && mount.id === 'idsq') {
             const rect = mount.getBoundingClientRect();
             const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-            const target = scrollTop + rect.top - 100; // Offset by 100px for header
+            const target = scrollTop + rect.top - 250; // Offset by 250px for header
             window.scrollTo({ top: target, behavior: 'smooth' });
           } else {
             window.scrollTo({ top: 0, behavior: 'smooth' });
