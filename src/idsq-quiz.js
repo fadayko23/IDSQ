@@ -2233,7 +2233,7 @@
       }
       .idsq-option-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        grid-template-columns: repeat(3, 1fr);
         gap: 2rem;
         width: 100%;
         margin-top: 2rem;
@@ -2683,6 +2683,12 @@
         color: #b91c1c;
         border-radius: 12px;
         margin-bottom: 1rem;
+      }
+      @media (max-width: 960px) {
+        .idsq-option-grid {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 1.5rem;
+        }
       }
       @media (max-width: 640px) {
         #idsq {
