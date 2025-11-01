@@ -2885,9 +2885,16 @@
 
     const handlers = {
       onStart() {
-        state.currentFlow = 'name-capture';
-        saveState(state);
-        renderNameCapture(config, mount, handlers);
+        // Skip name capture if user is invited with a name already provided, or if we have name but no email and not invited
+        if (state.participantName && (state.invited || state.leadData?.email)) {
+          state.currentFlow = 'space-selection';
+          saveState(state);
+          renderSpaceSelection(config, mount, handlers);
+        } else {
+          state.currentFlow = 'name-capture';
+          saveState(state);
+          renderNameCapture(config, mount, handlers);
+        }
       },
       onSubmitName(name) {
         state.participantName = name;
