@@ -11,12 +11,27 @@
     <script src="./idsq-quiz.js"></script>
     <script>
       document.addEventListener('DOMContentLoaded', function () {
-        if (window.IDSQ && typeof window.IDSQ.buildQuiz === 'function') {
-          window.IDSQ.buildQuiz({
-            airtable: {
-              enable: false,
-            },
-          });
+        console.log('DOM loaded, checking IDSQ...');
+        if (window.IDSQ) {
+          console.log('IDSQ exists');
+          if (typeof window.IDSQ.buildQuiz === 'function') {
+            console.log('buildQuiz is a function, calling it...');
+            try {
+              window.IDSQ.buildQuiz({
+                introVariant: 'guide-panel',
+                airtable: {
+                  enable: false,
+                },
+              });
+              console.log('buildQuiz called successfully');
+            } catch (e) {
+              console.error('Error calling buildQuiz:', e);
+            }
+          } else {
+            console.error('buildQuiz is not a function');
+          }
+        } else {
+          console.error('IDSQ object not found');
         }
       });
     </script>
