@@ -2105,6 +2105,8 @@
       }
       #idsq * {
         box-sizing: border-box;
+      }
+      #idsq *:not(button):not(.idsq-button) {
         color: var(--idsq-text) !important;
       }
       .idsq-title {
@@ -2124,11 +2126,11 @@
       .idsq-subtitle { font-weight: 500; font-size: 16px; line-height: 30px; margin: 0 0 1.25rem 0; opacity: .85; color: var(--IDSQ-Font) !important; }
       .idsq-guide-panel { display: grid; grid-template-columns: auto 1fr; gap: 1rem; align-items: center; border: 1px solid rgba(54,54,54,.1); border-radius: 14px; padding: clamp(16px, 3vw, 24px); background: rgba(54,54,54,.03); backdrop-filter: blur(1px); }
       .idsq-guide-avatar { display: block; width: clamp(72px, 10vw, 112px); height: clamp(72px, 10vw, 112px); border-radius: 50%; object-fit: cover; box-shadow: 0 6px 16px rgba(54,54,54,.15); user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; -webkit-user-drag: none; -khtml-user-drag: none; -moz-user-drag: none; -o-user-drag: none; }
-      .idsq-guide-copy { font-weight: 500; font-size: 16px; line-height: 30px; color: var(--IDSQ-Font) !important; }
-      .idsq-guide-copy p { color: var(--IDSQ-Font) !important; }
-      .idsq-guide-copy strong { color: var(--IDSQ-Font) !important; }
-      .idsq-guide-intro { margin: 0 0 .25rem 0; color: var(--IDSQ-Font) !important; }
-      .idsq-guide-intro strong { color: var(--IDSQ-Font) !important; }
+      .idsq-guide-copy { font-weight: 500; font-size: 16px; line-height: 30px; opacity: .85; color: var(--IDSQ-Font) !important; }
+      .idsq-guide-copy p { font-weight: 500; font-size: 16px; line-height: 30px; opacity: .85; color: var(--IDSQ-Font) !important; }
+      .idsq-guide-copy strong { font-weight: 500; opacity: 1; color: var(--IDSQ-Font) !important; }
+      .idsq-guide-intro { font-weight: 500; font-size: 16px; line-height: 30px; opacity: .85; margin: 0 0 .25rem 0; color: var(--IDSQ-Font) !important; }
+      .idsq-guide-intro strong { font-weight: 500; opacity: 1; color: var(--IDSQ-Font) !important; }
       .idsq-cta-wrap { position: absolute; top: clamp(24px, 4vw, 48px); right: 20px; display: flex; align-items: center; height: 50px; transform: translateY(30px); }
       @media (max-width: 960px) {
         .idsq-cta-wrap { position: static; height: auto; margin-top: 1.5rem; margin-bottom: 0; justify-content: center; transform: none; }
@@ -2316,10 +2318,12 @@
         color: var(--idsq-text);
       }
       .idsq-option-description {
-        font-size: 0.95rem;
-        color: rgba(54, 54, 54, 0.85);
+        font-weight: 500;
+        font-size: 16px;
+        line-height: 30px;
+        color: var(--IDSQ-Font) !important;
         margin: 0;
-        line-height: 1.5;
+        opacity: .85;
       }
       .idsq-final-gallery {
         display: grid;
