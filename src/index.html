@@ -19,8 +19,12 @@
             try {
               window.IDSQ.buildQuiz({
                 introVariant: 'guide-panel',
-                airtable: {
-                  enable: false,
+                // NOTE: For local testing only - credentials are here for convenience
+                // In production/Webflow, these should be set via your Embed code
+                webhook: {
+                  url: 'https://hook.us1.make.com/mcd4xny5t7i089ep8slgzy8him3amay3',
+                  headers: { 'x-make-apikey': 'b23f5a9d1e7a40a5c9d817d89e8d47f2' },
+                  enable: true,
                 },
               });
               console.log('buildQuiz called successfully');

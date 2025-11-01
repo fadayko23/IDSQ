@@ -37,8 +37,8 @@
       scheduleButton: 'Schedule Your Complimentary Call',
     },
     webhook: {
-      url: 'https://hook.us1.make.com/mcd4xny5t7i089ep8slgzy8him3amay3',
-      headers: { 'x-make-apikey': 'b23f5a9d1e7a40a5c9d817d89e8d47f2' },
+      url: null, // Set this in Webflow when initializing the quiz
+      headers: { 'x-make-apikey': null }, // Set this in Webflow when initializing the quiz
       enable: true,
     },
     leadCapture: {
