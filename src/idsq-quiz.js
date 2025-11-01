@@ -2105,9 +2105,6 @@
       }
       #idsq * {
         box-sizing: border-box;
-      }
-      #idsq.idsq *,
-      #idsq [class*="idsq-"] {
         color: var(--idsq-text) !important;
       }
       .idsq-title {
