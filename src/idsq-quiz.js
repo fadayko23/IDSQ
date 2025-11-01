@@ -2106,6 +2106,10 @@
       #idsq * {
         box-sizing: border-box;
       }
+      #idsq.idsq *,
+      #idsq [class*="idsq-"] {
+        color: var(--idsq-text) !important;
+      }
       .idsq-title {
         font-size: 38px;
         line-height: 50px;
@@ -2120,11 +2124,11 @@
       .idsq-hero-header { position: relative; }
       .idsq-hero-header .idsq-eyebrow { letter-spacing: .08em; text-transform: uppercase; opacity: .7; margin: 0 0 .25rem 0; font-weight: 500; font-size: 16px; line-height: 30px; }
       .idsq-hero-title { font-weight: 900; font-size: 38px; line-height: 50px; margin: 0 0 .35rem 0; }
-      .idsq-subtitle { font-weight: 500; font-size: 16px; line-height: 30px; margin: 0 0 1.25rem 0; opacity: .85; }
+      .idsq-subtitle { font-weight: 500; font-size: 16px; line-height: 30px; margin: 0 0 1.25rem 0; opacity: .85; color: var(--idsq-text) !important; }
       .idsq-guide-panel { display: grid; grid-template-columns: auto 1fr; gap: 1rem; align-items: center; border: 1px solid rgba(54,54,54,.1); border-radius: 14px; padding: clamp(16px, 3vw, 24px); background: rgba(54,54,54,.03); backdrop-filter: blur(1px); }
       .idsq-guide-avatar { display: block; width: clamp(72px, 10vw, 112px); height: clamp(72px, 10vw, 112px); border-radius: 50%; object-fit: cover; box-shadow: 0 6px 16px rgba(54,54,54,.15); user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; -webkit-user-drag: none; -khtml-user-drag: none; -moz-user-drag: none; -o-user-drag: none; }
-      .idsq-guide-copy { font-weight: 500; font-size: 16px; line-height: 30px; }
-      .idsq-guide-intro { margin: 0 0 .25rem 0; }
+      .idsq-guide-copy { font-weight: 500; font-size: 16px; line-height: 30px; color: var(--idsq-text) !important; }
+      .idsq-guide-intro { margin: 0 0 .25rem 0; color: var(--idsq-text) !important; }
       .idsq-cta-wrap { position: absolute; top: clamp(24px, 4vw, 48px); right: 20px; display: flex; align-items: center; height: 50px; transform: translateY(30px); }
       @media (max-width: 960px) {
         .idsq-cta-wrap { position: static; height: auto; margin-top: 1.5rem; margin-bottom: 0; justify-content: center; transform: none; }
@@ -2564,8 +2568,8 @@
       .idsq-clara-tip-title { font-weight: 900; color: var(--idsq-text); font-size: 16px; }
       .idsq-clara-tip-dna { display: inline-flex; vertical-align: middle; }
       .idsq-clara-tip-dna svg { display: block; }
-      .idsq-clara-tip-lines { text-align: left; }
-      .idsq-clara-tip-lines p { margin: .15rem 0; line-height: 1.6; }
+      .idsq-clara-tip-lines { text-align: left; color: var(--idsq-text) !important; }
+      .idsq-clara-tip-lines p { margin: .15rem 0; line-height: 1.6; color: var(--idsq-text) !important; }
       .idsq-schedule-cta {
         margin-top: 2rem;
         padding: 0;
