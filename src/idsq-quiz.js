@@ -660,7 +660,13 @@
   };
 
   // Build dynamic 4-round step set covering 12 styles (3 options x 4 rounds)
-  function buildDynamicStepsFromLibrary(library) {
+  function buildDynamicStepsFromLibrary(library, spaceId = 'general') {
+    // Map space IDs to match style library room keys
+    const spaceMap = {
+      'general': 'whole-home'  // Whole Home option maps to whole-home images
+    };
+    const mappedSpaceId = spaceMap[spaceId] || spaceId;
+    
     const styleKeys = Object.keys(library);
     // Prefer the 12 target styles when present
     const preferred = ['transitional','organic','japandi','wabi','mediterranean','scandinavian','artdeco','eclectic','softindustrial','coastal','farmhouse','desert'];
@@ -673,7 +679,22 @@
         const key = twelve[r * 3 + c];
         const def = library[key];
         if (!def) continue;
-        const img = def.finalImages && def.finalImages[0];
+        
+        // Get room-specific image from imagesByRoom
+        let img = null;
+        if (def.imagesByRoom && def.imagesByRoom[mappedSpaceId] && def.imagesByRoom[mappedSpaceId].length > 0) {
+          // Use first image from the room-specific array (_1 or _2)
+          img = def.imagesByRoom[mappedSpaceId][0];
+        } else {
+          // Fallback to living-room if space not available
+          if (def.imagesByRoom && def.imagesByRoom['living-room'] && def.imagesByRoom['living-room'].length > 0) {
+            img = def.imagesByRoom['living-room'][0];
+          } else {
+            // Final fallback to first finalImages
+            img = def.finalImages && def.finalImages[0];
+          }
+        }
+        
         options.push({
           id: `${key}-${r+1}-${c+1}`,
           styleId: key,
@@ -681,7 +702,7 @@
           imageUrl: img || 'https://images.unsplash.com/photo-1505692794403-5f23d2fcf25d?auto=format&fit=crop&w=900&q=80',
         });
       }
-      rounds.push({ id: `round-${r+1}`, prompt: r===0 ? 'Which look pulls you in?' : r===1 ? 'Which space feels right?' : r===2 ? 'Which direction resonates?' : 'Which would you live with every day?', options });
+      rounds.push({ id: `round-${r+1}`, prompt: r===0 ? 'Which look pulls you in?' : r===1 ? 'Which space feels right?' : r===2 ? 'Which aesthetic speaks to you?' : 'Which style feels most like home?', options });
     }
     return rounds;
   }
@@ -912,8 +933,10 @@
         width: '112',
         height: '112',
         loading: 'eager',
-        decoding: 'async'
+        decoding: 'async',
+        draggable: 'false',
       });
+      avatar.addEventListener('contextmenu', (e) => e.preventDefault());
       const guideCopy = createElement('div', 'idsq-guide-copy');
       const introLine = createElement('p', 'idsq-guide-intro');
       introLine.innerHTML = 'Hi! I\'m <strong>Clara</strong>, your interior design expert at <strong>JL Coates</strong>.';
@@ -937,7 +960,9 @@
     const claraProfile = createElement('img', 'idsq-clara-profile', {
       src: config.copy.claraProfileUrl,
       alt: 'Clara - Your Interior Design Expert',
+      draggable: 'false',
     });
+    claraProfile.addEventListener('contextmenu', (e) => e.preventDefault());
     claraWrapper.appendChild(claraProfile);
     const title = createElement('h2', 'idsq-title');
     title.textContent = config.copy.introTitle;
@@ -957,7 +982,9 @@
       const logo = createElement('img', 'idsq-logo', {
         src: config.brand.logoUrl,
         alt: 'Brand logo',
+        draggable: 'false',
       });
+      logo.addEventListener('contextmenu', (e) => e.preventDefault());
       intro.insertBefore(logo, intro.firstChild);
     }
     showSection(mount, intro);
@@ -1247,7 +1274,9 @@
     const claraMini = createElement('img', 'idsq-clara-mini', {
       src: config.copy.claraProfileUrl,
       alt: 'Clara',
+      draggable: 'false',
     });
+    claraMini.addEventListener('contextmenu', (e) => e.preventDefault());
     const claraInfo = createElement('p', 'idsq-clara-info');
     claraInfo.innerHTML = '<span class="idsq-clara-info-name">Clara</span> · Interior Design Expert';
     claraWrapper.appendChild(claraMini);
@@ -1310,7 +1339,9 @@
     const claraMini = createElement('img', 'idsq-clara-mini', {
       src: config.copy.claraProfileUrl,
       alt: 'Clara',
+      draggable: 'false',
     });
+    claraMini.addEventListener('contextmenu', (e) => e.preventDefault());
     const claraInfo = createElement('p', 'idsq-clara-info');
     claraInfo.innerHTML = '<span class="idsq-clara-info-name">Clara</span> · Interior Design Expert';
     claraWrapper.appendChild(claraMini);
@@ -1330,9 +1361,17 @@
     
     prompt.textContent = personalizedPrompt;
     
-    // Add helpful instruction text
+    // Add helpful instruction text - rotate by round for variety
     const instruction = createElement('p', 'idsq-instruction');
-    instruction.textContent = 'Trust your intuition—which image speaks to you?';
+    const instructionVariants = [
+      'Trust your intuition—which image speaks to you?',
+      'Follow your gut—what catches your eye?',
+      'Go with your first instinct—which calls to you?',
+      'What draws you in? Choose what feels right.'
+    ];
+    // Cycle through variants based on current step
+    const instructionIndex = state.currentStep % instructionVariants.length;
+    instruction.textContent = instructionVariants[instructionIndex];
 
     const grid = createElement('div', 'idsq-option-grid');
 
@@ -1353,7 +1392,9 @@
         src: option.imageUrl,
         alt: option.title,
         loading: 'lazy',
+        draggable: 'false',
       });
+      image.addEventListener('contextmenu', (e) => e.preventDefault());
 
       // Removed title/label to keep selections purely visual and image-based
       card.appendChild(image);
@@ -1421,7 +1462,9 @@
     const claraMini = createElement('img', 'idsq-clara-mini', {
       src: config.copy.claraProfileUrl,
       alt: 'Clara',
+      draggable: 'false',
     });
+    claraMini.addEventListener('contextmenu', (e) => e.preventDefault());
     const claraInfo = createElement('p', 'idsq-clara-info');
     claraInfo.innerHTML = '<span class="idsq-clara-info-name">Clara</span> · Interior Design Expert';
     claraWrapper.appendChild(claraMini);
@@ -1451,47 +1494,151 @@
   function getMilestoneMessage(space, roundNumber) {
     const messages = {
       'living-room': [
-        'Your living room is the heart of your home—it sets the tone for everything else. I always tell my clients to think about how people will actually move through and gather in this space.',
-        'Natural light is your best friend in interior design! Notice how the sun moves through your space during the day—this will help guide us in choosing colors and window treatments.',
-        'You\'re making fantastic choices! Remember, the best design balances function with beauty. We\'re finding pieces that work for YOUR lifestyle, not someone else\'s idea of perfect.',
-        'One more round! By now, your style preferences are really coming through. Trust that feeling—the design that resonates most with you is the one that will truly feel like home.'
+        // Round 1 (after first selection)
+        ['Your living room is the heart of your home—it sets the tone for everything else. I always tell my clients to think about how people will actually move through and gather in this space.',
+         'Natural light is your best friend in interior design! Notice how the sun moves through your space during the day—this will help guide us in choosing colors and window treatments.',
+         'Scale is everything in a living room. I love helping clients understand how furniture placement can make a space feel both cozy and spacious—it\'s all about the right proportions.',
+         'The best living rooms tell a story. Think about what pieces matter most to you—maybe it\'s that inherited bookcase or that rug you found on your travels. Let\'s honor those personal touches.'],
+        // Round 2 (after second selection)
+        ['You\'re making fantastic choices! Remember, the best design balances function with beauty. We\'re finding pieces that work for YOUR lifestyle, not someone else\'s idea of perfect.',
+         'A well-designed living room flows naturally. I always consider how traffic patterns move through the space—nothing should feel cramped or awkward.',
+         'Material selection is key! Natural materials like wood, stone, and linen add warmth and soul to a space. They age beautifully and feel timeless.',
+         'Don\'t forget vertical space! I love using tall bookcases or artwork to draw the eye up—it makes a room feel larger and more sophisticated.'],
+        // Round 3 (after third selection)
+        ['We\'re in the home stretch! Your living room should be where you want to spend your time. Think about what activities happen here—watching TV, reading, entertaining friends.',
+         'Layering is my secret weapon! I love combining different textiles—throws, pillows, rugs—to create depth and visual interest. It\'s what makes a room feel pulled together.',
+         'A great living room has moments of drama and moments of rest. That balance of bold and subtle is what creates a truly dynamic, lived-in space.',
+         'Quality over quantity always! Better to have fewer, well-chosen pieces than a room full of items that don\'t quite work together. Your selections show you understand that.'],
+        // Round 4 (before final selection)
+        ['One more round! By now, your style preferences are really coming through. Trust that feeling—the design that resonates most with you is the one that will truly feel like home.',
+         'Final selection! You\'ve shown such consistent taste. This last choice will help us pinpoint exactly which style speaks to your heart and makes your living room perfect for YOUR lifestyle.',
+         'Last round! Your living room should reflect who you are. We\'re so close to discovering the design language that will make this space authentically yours.',
+         'This is it! One more choice and we\'ll have your complete style profile. Trust those instincts—you\'ve been spot-on throughout this entire process.']
       ],
       'bedroom': [
-        'Your bedroom should be your sanctuary—a place where you truly feel at peace. When I design bedrooms, I always prioritize what makes my clients feel most comfortable and recharged.',
-        'Storage doesn\'t have to be an eyesore! I love finding creative ways to blend function with form. Beautiful design can be practical too—that\'s the magic.',
-        'We\'re almost there! Bedroom design is deeply personal, and you\'re doing an amazing job trusting your instincts. You know what makes you feel most at peace—let\'s honor that.',
-        'Final selection! You\'ve shown such consistent taste. This last choice will help us pinpoint exactly which style speaks to your heart and will make your bedroom feel like the perfect retreat.'
+        // Round 1
+        ['Your bedroom should be your sanctuary—a place where you truly feel at peace. When I design bedrooms, I always prioritize what makes my clients feel most comfortable and recharged.',
+         'Good sleep starts with good design! I always ask clients about their sleep habits—do you need blackout curtains? Soft ambient light? That informs everything.',
+         'Storage doesn\'t have to be an eyesore! I love finding creative ways to blend function with form. Beautiful design can be practical too—that\'s the magic.',
+         'The bedroom is your personal retreat. Think about what makes you feel most relaxed after a long day—that\'s the energy we want to create here.'],
+        // Round 2
+        ['Bedroom color psychology is fascinating! Warmer tones can be more restful than cool blues. We\'ll find the palette that makes you feel most at peace.',
+         'I always recommend a layered approach to bedroom lighting. Overhead lighting for tasks, but sconces or table lamps for that cozy, unwinding atmosphere.',
+         'Invest in the bed itself—it\'s literally the focal point! A beautiful headboard or statement bed frame can anchor the entire room\'s design.',
+         'Don\'t underestimate the power of a great rug! In a bedroom, it adds warmth underfoot and creates that luxurious, hotel-like feeling.'],
+        // Round 3
+        ['We\'re almost there! Bedroom design is deeply personal, and you\'re doing an amazing job trusting your instincts. You know what makes you feel most at peace—let\'s honor that.',
+         'Window treatments matter more than people think! They control light, add privacy, and can completely transform the mood of a bedroom.',
+         'A bedroom should feel cocoon-like. Think about creating layers of texture—soft linens, plush pillows, velvet throws—that invite you to sink in and decompress.',
+         'Quality bedding elevates everything! Good thread count sheets and a beautiful duvet cover are investments in your daily comfort and the room\'s overall aesthetic.'],
+        // Round 4
+        ['Final selection! You\'ve shown such consistent taste. This last choice will help us pinpoint exactly which style speaks to your heart and will make your bedroom feel like the perfect retreat.',
+         'Last round! Your bedroom sanctuary is taking shape. One more choice and we\'ll have the complete picture of your ideal sleep space.',
+         'This is it! You\'ve been so thoughtful about what creates your ideal bedroom. Trust those final instincts—we\'re so close to your perfect style match.',
+         'One more to go! Your bedroom should be YOUR haven. This final selection will reveal the style that transforms your sleep space into the peaceful retreat you deserve.']
       ],
       'kitchen': [
-        'Kitchens are truly the heart of the home! When designing a kitchen, I always ask my clients to walk me through how they actually cook and entertain. That real-life workflow is everything.',
-        'Good lighting in a kitchen is non-negotiable—it\'s one of those things that makes every task easier. I love layering task lighting under cabinets with ambient light for both function and mood.',
-        'We\'re in the home stretch! A well-designed kitchen doesn\'t just look beautiful—it saves you time and makes everyday tasks so much more enjoyable. That\'s good design.',
-        'Last round! Your selections have been spot-on. This final choice will help us identify the style that perfectly matches how you want your kitchen to feel and function every single day.'
+        // Round 1
+        ['Kitchens are truly the heart of the home! When designing a kitchen, I always ask my clients to walk me through how they actually cook and entertain. That real-life workflow is everything.',
+         'Good lighting in a kitchen is non-negotiable—it\'s one of those things that makes every task easier. I love layering task lighting under cabinets with ambient light for both function and mood.',
+         'Kitchen storage can be beautiful! I love open shelving mixed with closed cabinetry—it creates that perfect balance of accessibility and visual calm.',
+         'The kitchen triangle still matters! Sink, stove, and refrigerator placement affects how efficiently you can cook. Let\'s optimize that flow.'],
+        // Round 2
+        ['Countertops are your kitchen\'s jewelry! Whether you choose marble, quartz, or butcher block, the surface you prep on should bring you joy.',
+         'Hardware is the jewelry of your kitchen! Beautiful faucets, cabinet pulls, and handles can elevate the entire space without a major renovation.',
+         'A great kitchen island is a game-changer! Whether it\'s for prep work, casual dining, or gathering with guests, it becomes the social hub of the space.',
+         'Don\'t forget the backsplash! It\'s a perfect opportunity to inject personality and visual interest without overwhelming the space.'],
+        // Round 3
+        ['We\'re in the home stretch! A well-designed kitchen doesn\'t just look beautiful—it saves you time and makes everyday tasks so much more enjoyable. That\'s good design.',
+         'Kitchen appliances deserve to be seen! Beautiful ranges, refrigerators, and dishwashers can become statement pieces rather than just functional necessities.',
+         'Flow matters so much in a kitchen. I always think about how multiple people can cook together comfortably—it makes entertaining so much more fun.',
+         'Your kitchen should reflect how you actually live. If you\'re a baker, let\'s make room for that. Love to entertain? We\'ll design for gatherings.'],
+        // Round 4
+        ['Last round! Your selections have been spot-on. This final choice will help us identify the style that perfectly matches how you want your kitchen to feel and function every single day.',
+         'Final selection! A kitchen is an investment in your daily life. This last choice will reveal the style that creates the cooking and gathering space of your dreams.',
+         'One more to go! Your kitchen heart is almost complete. Trust these final instincts—we\'re pinpointing the aesthetic that will make cooking a joy.',
+         'This is it! One more choice and we\'ll have your complete kitchen style profile. Your selections show you value both beauty and function—perfect!']
       ],
       'bathroom': [
-        'Bathrooms should be peaceful retreats—even for quick morning routines. I\'ve designed powder rooms that feel like mini spas through the right materials and lighting. Every space deserves that sanctuary feeling!',
-        'Storage doesn\'t have to mean clutter! I love finding clever storage solutions that blend function with form. Medicine cabinets, vanity drawers, niche shelving—we can make it beautiful.',
-        'Almost there! Remember, even small bathrooms can feel luxurious. It\'s all about the right lighting, materials, and attention to detail. You deserve that sanctuary feeling every day.',
-        'One more to go! Your preferences are crystal clear now. This final selection will reveal the style that transforms your bathroom into the serene, rejuvenating space you deserve.'
+        // Round 1
+        ['Bathrooms should be peaceful retreats—even for quick morning routines. I\'ve designed powder rooms that feel like mini spas through the right materials and lighting. Every space deserves that sanctuary feeling!',
+         'Storage doesn\'t have to mean clutter! I love finding clever storage solutions that blend function with form. Medicine cabinets, vanity drawers, niche shelving—we can make it beautiful.',
+         'Good lighting around the mirror is a bathroom game-changer! Sconces on either side provide the best, most flattering light—no harsh overhead shadows.',
+         'I always think about the bathroom as a mini spa. Even small spaces can feel luxurious with the right materials, textures, and color palette.'],
+        // Round 2
+        ['Tile is your bathroom\'s personality! Whether it\'s bold, subtle, classic, or modern—the patterns and colors you choose set the entire room\'s vibe.',
+         'A great vanity anchors the whole bathroom. It\'s often the largest piece of furniture, so choosing the right style, size, and finish makes all the difference.',
+         'Hardware details matter! Beautiful faucets, shower fixtures, and cabinet hardware can transform a bathroom from basic to stunning.',
+         'Don\'t forget the shower experience! Rainfall showerheads, body jets, or beautiful tile work can make your morning routine feel like a luxury spa visit.'],
+        // Round 3
+        ['Almost there! Remember, even small bathrooms can feel luxurious. It\'s all about the right lighting, materials, and attention to detail. You deserve that sanctuary feeling every day.',
+         'Mixing materials in a bathroom adds so much interest! Natural stone with warm wood, matte black with marble, glass with metal—the combinations create visual depth.',
+         'A bathroom should feel calm and restorative. Think about how you want to start and end your day—that energy should be built into the design.',
+         'Quality fixtures are worth it! They\'re things you touch every single day, so investing in pieces that feel good and look beautiful is a no-brainer.'],
+        // Round 4
+        ['One more to go! Your preferences are crystal clear now. This final selection will reveal the style that transforms your bathroom into the serene, rejuvenating space you deserve.',
+         'Final selection! Your bathroom sanctuary is almost complete. One more choice and we\'ll have your perfect style match for a space that elevates your daily routine.',
+         'Last round! You\'ve been so thoughtful about creating that spa-like feeling. This final choice will reveal the aesthetic that makes your bathroom truly yours.',
+         'This is it! One more choice and we\'ll nail your bathroom style. Your selections show you value that daily moment of peace—let\'s honor that.']
       ],
       'office': [
-        'Your office should inspire productivity while reflecting your personal style. I always ask clients: how do you work best—quiet focus or collaborative energy? That drives the whole design.',
-        'Lighting in a home office is absolutely crucial. Natural light boosts mood and productivity, and I always add task lighting to prevent eye strain during long work sessions—your eyes will thank you!',
-        'Almost there! Your office is your professional sanctuary. Let\'s make it a space where you genuinely love to work. That\'s when the magic happens.',
-        'Final round! Your choices have been so thoughtful. This last selection will help us identify the style that creates the perfect work environment—one that energizes and inspires you.'
+        // Round 1
+        ['Your office should inspire productivity while reflecting your personal style. I always ask clients: how do you work best—quiet focus or collaborative energy? That drives the whole design.',
+         'Lighting in a home office is absolutely crucial. Natural light boosts mood and productivity, and I always add task lighting to prevent eye strain during long work sessions—your eyes will thank you!',
+         'Cable management is design! Nobody wants a desk covered in cords. I love finding sleek solutions that keep everything tidy and out of sight.',
+         'An office needs zones: focus work, creative thinking, and maybe a spot for breaks. Let\'s design for how you actually move through your workday.'],
+        // Round 2
+        ['Your desk is your command center! It should be large enough to spread out, at the right height, and positioned to maximize natural light if possible.',
+         'Storage solutions in an office have to work hard. Beautiful bookshelves, file cabinets, or floating shelves can keep you organized without feeling clinical.',
+         'Plants in an office are non-negotiable! They purify air, boost mood, and add life to what can feel like a sterile space. It\'s the easiest design win.',
+         'Ergonomics meet aesthetics! A beautiful chair doesn\'t mean sacrificing comfort. We\'ll find pieces that look great and support your body during long work sessions.'],
+        // Round 3
+        ['Almost there! Your office is your professional sanctuary. Let\'s make it a space where you genuinely love to work. That\'s when the magic happens.',
+         'Personal touches matter in an office! Family photos, artwork, or meaningful objects keep you grounded and remind you why you\'re working.',
+         'Acoustics can make or break an office! Soft furnishings, rugs, and even artwork can absorb sound and create that perfect focus environment.',
+         'A standing desk option is becoming essential! Being able to switch between sitting and standing keeps your energy up and your body happy.'],
+        // Round 4
+        ['Final round! Your choices have been so thoughtful. This last selection will help us identify the style that creates the perfect work environment—one that energizes and inspires you.',
+         'Last selection! Your office should be the space where your best work happens. This final choice will reveal the aesthetic that supports your productivity and makes work enjoyable.',
+         'One more to go! You\'ve been so intentional about creating a space that works for YOUR process. This final selection will complete your ideal work environment.',
+         'This is it! One more choice and we\'ll have your complete office style profile. Your selections show you value both function and beauty in your work life.']
       ],
       'general': [
-        'Color is one of the most powerful tools in my design toolkit. I love helping clients choose a palette that speaks to their personality—we use it consistently to create that feeling of harmony throughout your home.',
-        'I always tell clients: mixing textures adds so much depth to a space! Smooth with rough, shiny with matte, soft with hard. That\'s what creates real visual interest and keeps a room dynamic.',
-        'Final round! Trust your instincts—the best design reflects who you are and how you want to live. You\'re discovering that, and I\'m here to guide you through it.',
-        'Last selection! You\'ve been so consistent in your preferences. This final choice will reveal the design style that truly embodies your personal aesthetic and creates the home you\'ve been envisioning.'
+        // Round 1
+        ['Color is one of the most powerful tools in my design toolkit. I love helping clients choose a palette that speaks to their personality—we use it consistently to create that feeling of harmony throughout your home.',
+         'I always tell clients: mixing textures adds so much depth to a space! Smooth with rough, shiny with matte, soft with hard. That\'s what creates real visual interest and keeps a room dynamic.',
+         'Natural light is your best design tool! I always notice how light moves through spaces—it affects everything from color choices to furniture placement.',
+         'Scale and proportion are everything. A room full of small furniture can feel cramped, while oversized pieces can overwhelm. Finding that sweet spot is key.'],
+        // Round 2
+        ['Artwork personalizes a space like nothing else. Whether it\'s a gallery wall, statement piece, or curated collection, it tells your story.',
+         'A beautiful home needs moments of both drama and rest. Bold statement pieces balanced with calm, neutral spaces create that perfect rhythm.',
+         'Storage shouldn\'t be an afterthought! Beautiful solutions—built-ins, decorative baskets, elegant shelving—keep life organized without sacrificing style.',
+         'Quality over quantity always. Better to have fewer, well-chosen pieces that you truly love than a room full of things that don\'t quite work together.'],
+        // Round 3
+        ['Layering is my secret to creating depth! Rugs, throws, pillows, plants, books—these collected layers give a home personality and soul.',
+         'Don\'t forget the ceiling! The "fifth wall" is often overlooked. A painted ceiling or beautiful light fixture can transform a space.',
+         'Plants bring life to any room! They purify air, add natural texture, and create that feeling of bringing the outdoors in.',
+         'A great home has flow from room to room. Cohesive color palettes, repeated materials, and consistent style choices create that harmonious feeling.'],
+        // Round 4
+        ['Final round! Trust your instincts—the best design reflects who you are and how you want to live. You\'re discovering that, and I\'m here to guide you through it.',
+         'Last selection! You\'ve been so consistent in your preferences. This final choice will reveal the design style that truly embodies your personal aesthetic and creates the home you\'ve been envisioning.',
+         'One more to go! Your style preferences are crystal clear. This final selection will complete your design profile and reveal the aesthetic that feels most authentically you.',
+         'This is it! One more choice and we\'ll have your complete style profile. You\'ve shown such great taste throughout—trust these final instincts!']
       ]
     };
     
-    if (messages[space] && messages[space][roundNumber - 1]) {
-      return messages[space][roundNumber - 1];
+    // Get messages for this space and round
+    const spaceMessages = messages[space] || messages['general'];
+    const roundMessages = spaceMessages[roundNumber - 1] || [];
+    
+    // If we have multiple messages for this round, randomize
+    if (roundMessages.length > 0) {
+      const randomIndex = Math.floor(Math.random() * roundMessages.length);
+      return roundMessages[randomIndex];
     }
-    return messages['general'][roundNumber - 1];
+    
+    // Fallback
+    return spaceMessages[spaceMessages.length - 1][0] || 'Great progress! Keep following your instincts.';
   }
   
 
@@ -1660,12 +1807,33 @@
       const payload = { styleId: styleResult.styleId, styleName: styleResult.styleName };
       card.addEventListener('click', () => handlers.onSelectFinal(payload));
 
-      // Show only ONE unique image per style (first image from finalImages)
+      // Get the _2 image for the selected space
+      const selectedSpace = state.selectedSpace || 'general';
+      const spaceMap = { 'general': 'whole-home' };
+      const roomKey = spaceMap[selectedSpace] || selectedSpace;
+      let imageUrl = null;
+      
+      if (styleResult.styleDefinition.imagesByRoom && styleResult.styleDefinition.imagesByRoom[roomKey]) {
+        // Use _2 image (second image in the array)
+        const roomImages = styleResult.styleDefinition.imagesByRoom[roomKey];
+        imageUrl = roomImages.length > 1 ? roomImages[1] : roomImages[0];
+      } else {
+        // Fallback to living-room or first available
+        if (styleResult.styleDefinition.imagesByRoom && styleResult.styleDefinition.imagesByRoom['living-room']) {
+          const roomImages = styleResult.styleDefinition.imagesByRoom['living-room'];
+          imageUrl = roomImages.length > 1 ? roomImages[1] : roomImages[0];
+        } else {
+          imageUrl = styleResult.styleDefinition.finalImages[0];
+        }
+      }
+      
       const image = createElement('img', 'idsq-option-image', {
-        src: styleResult.styleDefinition.finalImages[0],
+        src: imageUrl,
         alt: `Style option ${idx + 1}`,
-          loading: 'lazy',
+        loading: 'lazy',
+        draggable: 'false',
       });
+      image.addEventListener('contextmenu', (e) => e.preventDefault());
       
       card.appendChild(image);
       grid.appendChild(card);
@@ -1737,6 +1905,8 @@
     tipAvatar.className = 'idsq-clara-mini';
     tipAvatar.src = config.copy.claraProfileUrl;
     tipAvatar.alt = 'Clara';
+    tipAvatar.draggable = false;
+    tipAvatar.addEventListener('contextmenu', (e) => e.preventDefault());
     tip.appendChild(tipAvatar);
     // Right content
     const tipContent = document.createElement('div');
@@ -1762,13 +1932,28 @@
 
     const card = createElement('article', 'idsq-final-result');
     
+    // Get the _3 image for the selected space from finalImages
+    const selectedSpace = state.selectedSpace || 'general';
+    const spaceToIndexMap = {
+      'living-room': 0,
+      'bedroom': 1,
+      'kitchen': 2,
+      'bathroom': 3,
+      'office': 4,
+      'general': 5  // general maps to whole-home
+    };
+    const imageIndex = spaceToIndexMap[selectedSpace] || 5;
+    const finalImageUrl = (state.finalStyle.finalImages && state.finalStyle.finalImages[imageIndex]) || state.finalStyle.finalImages[0];
+    
     // Single large image
     const imageContainer = createElement('div', 'idsq-final-single-container');
     const img = createElement('img', 'idsq-final-single-image', {
-      src: state.finalStyle.finalImages[0],
+      src: finalImageUrl,
       alt: `${state.finalStyle.styleName} inspiration`,
         loading: 'lazy',
+        draggable: 'false',
       });
+    img.addEventListener('contextmenu', (e) => e.preventDefault());
     imageContainer.appendChild(img);
 
     const styleDescription = createElement('p', 'idsq-final-description');
@@ -1937,7 +2122,7 @@
       .idsq-hero-title { font-weight: 900; font-size: 38px; line-height: 50px; margin: 0 0 .35rem 0; }
       .idsq-subtitle { font-weight: 500; font-size: 16px; line-height: 30px; margin: 0 0 1.25rem 0; opacity: .85; }
       .idsq-guide-panel { display: grid; grid-template-columns: auto 1fr; gap: 1rem; align-items: center; border: 1px solid rgba(54,54,54,.1); border-radius: 14px; padding: clamp(16px, 3vw, 24px); background: rgba(54,54,54,.03); backdrop-filter: blur(1px); }
-      .idsq-guide-avatar { display: block; width: clamp(72px, 10vw, 112px); height: clamp(72px, 10vw, 112px); border-radius: 50%; object-fit: cover; box-shadow: 0 6px 16px rgba(54,54,54,.15); }
+      .idsq-guide-avatar { display: block; width: clamp(72px, 10vw, 112px); height: clamp(72px, 10vw, 112px); border-radius: 50%; object-fit: cover; box-shadow: 0 6px 16px rgba(54,54,54,.15); user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; -webkit-user-drag: none; -khtml-user-drag: none; -moz-user-drag: none; -o-user-drag: none; }
       .idsq-guide-copy { font-weight: 500; font-size: 16px; line-height: 30px; }
       .idsq-guide-intro { margin: 0 0 .25rem 0; }
       .idsq-cta-wrap { position: absolute; top: clamp(24px, 4vw, 48px); right: 20px; display: flex; align-items: center; height: 50px; transform: translateY(30px); }
@@ -2106,6 +2291,14 @@
         display: block;
         border-radius: 12px;
         box-shadow: 0 4px 20px rgba(44, 44, 44, 0.1);
+        user-select: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        -webkit-user-drag: none;
+        -khtml-user-drag: none;
+        -moz-user-drag: none;
+        -o-user-drag: none;
       }
       .idsq-option-label {
         padding: 1.25rem;
@@ -2149,10 +2342,26 @@
         border-radius: 16px;
         box-shadow: 0 4px 20px rgba(44, 44, 44, 0.1);
         background: #ffffff;
+        user-select: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        -webkit-user-drag: none;
+        -khtml-user-drag: none;
+        -moz-user-drag: none;
+        -o-user-drag: none;
       }
       .idsq-logo {
         max-width: 140px;
         margin-bottom: 1.5rem;
+        user-select: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        -webkit-user-drag: none;
+        -khtml-user-drag: none;
+        -moz-user-drag: none;
+        -o-user-drag: none;
       }
       .idsq-form {
         width: min(420px, 100%);
@@ -2229,6 +2438,14 @@
         box-shadow: 0 2px 8px rgba(44, 44, 44, 0.1);
         position: relative;
         z-index: 2;
+        user-select: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        -webkit-user-drag: none;
+        -khtml-user-drag: none;
+        -moz-user-drag: none;
+        -o-user-drag: none;
       }
       .idsq-clara-profile-wrapper::after {
         content: '';
@@ -2256,6 +2473,14 @@
         box-shadow: 0 2px 8px rgba(44, 44, 44, 0.1);
         display: inline-block;
         margin-bottom: 0.5rem;
+        user-select: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        -webkit-user-drag: none;
+        -khtml-user-drag: none;
+        -moz-user-drag: none;
+        -o-user-drag: none;
       }
       .idsq-clara-info {
         font-size: 0.875rem;
@@ -2558,6 +2783,13 @@
     mount.id = 'idsq';
     injectFont(config);
     injectStyles(config);
+    
+    // Add global right-click protection for images
+    mount.addEventListener('contextmenu', (e) => {
+      if (e.target.tagName === 'IMG' && (e.target.classList.contains('idsq-option-image') || e.target.classList.contains('idsq-final-single-image') || e.target.classList.contains('idsq-final-image'))) {
+        e.preventDefault();
+      }
+    });
 
     // Load saved state from localStorage
     const loadState = () => {
@@ -2631,7 +2863,7 @@
       const explicit = config.stepsBySpace && (config.stepsBySpace[spaceId] || config.stepsBySpace['general']);
       if (explicit && explicit.length >= 4) return explicit;
       // Fallback to dynamic steps to ensure 12-style coverage
-      return buildDynamicStepsFromLibrary(config.styleLibrary);
+      return buildDynamicStepsFromLibrary(config.styleLibrary, spaceId);
     }
     
     function getPersonalizedPrompt(basePrompt) {
