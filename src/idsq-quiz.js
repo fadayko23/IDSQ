@@ -898,7 +898,15 @@
       () => {
         mount.innerHTML = '';
         mount.appendChild(section);
-        requestAnimationFrame(() => section.classList.add('idsq-animate-in'));
+        requestAnimationFrame(() => {
+          section.classList.add('idsq-animate-in');
+          // Scroll to top of quiz container on each selection
+          if (mount && mount.id === 'idsq') {
+            mount.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          } else {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          }
+        });
       },
       { once: true }
     );
@@ -2128,9 +2136,9 @@
       .idsq-guide-avatar { display: block; width: clamp(72px, 10vw, 112px); height: clamp(72px, 10vw, 112px); border-radius: 50%; object-fit: cover; box-shadow: 0 6px 16px rgba(54,54,54,.15); user-select: none; -webkit-user-select: none; -moz-user-select: none; -ms-user-select: none; -webkit-user-drag: none; -khtml-user-drag: none; -moz-user-drag: none; -o-user-drag: none; }
       .idsq-guide-copy { font-weight: 500; font-size: 16px; line-height: 30px; opacity: .85; color: var(--IDSQ-Font) !important; }
       .idsq-guide-copy p { font-weight: 500; font-size: 16px; line-height: 30px; opacity: .85; color: var(--IDSQ-Font) !important; }
-      .idsq-guide-copy strong { font-weight: 500; opacity: 1; color: var(--IDSQ-Font) !important; }
+      .idsq-guide-copy strong { font-weight: 700; opacity: 1; color: var(--IDSQ-Font) !important; }
       .idsq-guide-intro { font-weight: 500; font-size: 16px; line-height: 30px; opacity: .85; margin: 0 0 .25rem 0; color: var(--IDSQ-Font) !important; }
-      .idsq-guide-intro strong { font-weight: 500; opacity: 1; color: var(--IDSQ-Font) !important; }
+      .idsq-guide-intro strong { font-weight: 700; opacity: 1; color: var(--IDSQ-Font) !important; }
       .idsq-cta-wrap { position: absolute; top: clamp(24px, 4vw, 48px); right: 20px; display: flex; align-items: center; height: 50px; transform: translateY(30px); }
       @media (max-width: 960px) {
         .idsq-cta-wrap { position: static; height: auto; margin-top: 1.5rem; margin-bottom: 0; justify-content: center; transform: none; }
@@ -2557,10 +2565,12 @@
         margin: 0 auto 2rem;
       }
       .idsq-final-description {
+        font-weight: 500;
+        font-size: 16px;
+        line-height: 30px;
+        opacity: .85;
+        color: var(--IDSQ-Font) !important;
         text-align: center;
-        font-size: 1.1rem;
-        line-height: 1.7;
-        color: rgba(54, 54, 54, 0.85);
         max-width: 700px;
         margin: 0 auto;
         padding: 0 1rem;
@@ -2572,8 +2582,8 @@
       .idsq-clara-tip-title { font-weight: 900; color: var(--idsq-text); font-size: 16px; }
       .idsq-clara-tip-dna { display: inline-flex; vertical-align: middle; }
       .idsq-clara-tip-dna svg { display: block; }
-      .idsq-clara-tip-lines { text-align: left; color: var(--idsq-text) !important; }
-      .idsq-clara-tip-lines p { margin: .15rem 0; line-height: 1.6; color: var(--idsq-text) !important; }
+      .idsq-clara-tip-lines { font-weight: 500; font-size: 16px; line-height: 30px; opacity: .85; text-align: left; color: var(--IDSQ-Font) !important; }
+      .idsq-clara-tip-lines p { font-weight: 500; font-size: 16px; line-height: 30px; opacity: .85; margin: .15rem 0; color: var(--IDSQ-Font) !important; }
       .idsq-schedule-cta {
         margin-top: 2rem;
         padding: 0;
