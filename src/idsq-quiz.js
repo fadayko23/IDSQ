@@ -770,12 +770,12 @@
         sessionId: getOrCreateSessionId(),
       },
       participant: {
-        name: state.leadData?.participantName || state.participantName || null,
+        name: state.participantName || state.leadData?.name || state.leadData?.participantName || null,
         email: state.leadData?.email || null,
         newsletter: !!state.newsLetterSignup,
-        invited: false,
-        rid: null,
-        cp: null,
+        invited: !!state.invited,
+        rid: state.rid || null,
+        cp: state.cp || null,
       },
       context: {
         spaceId: state.selectedSpace || null,
