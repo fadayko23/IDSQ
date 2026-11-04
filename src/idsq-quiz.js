@@ -1976,48 +1976,48 @@
       card.appendChild(tip);
     }
 
-    // Scheduling CTA
-    const scheduleCTA = createElement('div', 'idsq-schedule-cta');
-    const ctaTitle = createElement('h3', 'idsq-schedule-cta-title');
-    
-    // Get space name from config (use spaceTypes)
-    let spaceName = null;
-    if (config.spaceTypes && state.selectedSpace) {
-      const spaceInfo = config.spaceTypes.find(s => s.id === state.selectedSpace);
-      if (spaceInfo && spaceInfo.name) {
-        spaceName = spaceInfo.name;
-      }
-    }
-    const styleName = (state.finalStyle && state.finalStyle.styleName) ? state.finalStyle.styleName : 'design';
-    
-    // Create grammatically correct text based on whether space name is available
-    if (spaceName) {
-      ctaTitle.textContent = `Ready to bring your ${styleName} vision to life in your ${spaceName}?`;
-    } else {
-      ctaTitle.textContent = `Ready to bring your ${styleName} vision to life?`;
-    }
+    section.appendChild(title);
+    section.appendChild(card);
 
-    scheduleCTA.appendChild(ctaTitle);
-
-    // Button container for side-by-side layout
+    // Public visitors get the booking prompt and Schedule link.
+    // Invited clients (nonempty rid or cp) keep the reveal and restart control only,
+    // so the heading is omitted with the button and does not leave an empty CTA.
     const buttonContainer = createElement('div', 'idsq-success-buttons');
-    const scheduleButton = createElement('a', 'idsq-button idsq-button-primary', {
-      href: 'https://www.jlcoates.com/interior-design/contact',
-      target: '_blank',
-      rel: 'noopener noreferrer',
-    });
-    scheduleButton.textContent = 'Schedule';
-    
+    if (!state.invited) {
+      const scheduleCTA = createElement('div', 'idsq-schedule-cta');
+      const ctaTitle = createElement('h3', 'idsq-schedule-cta-title');
+
+      let spaceName = null;
+      if (config.spaceTypes && state.selectedSpace) {
+        const spaceInfo = config.spaceTypes.find(s => s.id === state.selectedSpace);
+        if (spaceInfo && spaceInfo.name) {
+          spaceName = spaceInfo.name;
+        }
+      }
+      const styleName = (state.finalStyle && state.finalStyle.styleName) ? state.finalStyle.styleName : 'design';
+
+      if (spaceName) {
+        ctaTitle.textContent = `Ready to bring your ${styleName} vision to life in your ${spaceName}?`;
+      } else {
+        ctaTitle.textContent = `Ready to bring your ${styleName} vision to life?`;
+      }
+
+      scheduleCTA.appendChild(ctaTitle);
+      section.appendChild(scheduleCTA);
+
+      const scheduleButton = createElement('a', 'idsq-button idsq-button-primary', {
+        href: 'https://www.jlcoates.com/interior-design/contact',
+        target: '_blank',
+        rel: 'noopener noreferrer',
+      });
+      scheduleButton.textContent = 'Schedule';
+      buttonContainer.appendChild(scheduleButton);
+    }
+
     const restart = createElement('button', 'idsq-button idsq-button-secondary');
     restart.textContent = config.copy.retryButton;
     restart.addEventListener('click', handlers.onRestart);
-    
-    buttonContainer.appendChild(scheduleButton);
     buttonContainer.appendChild(restart);
-
-    section.appendChild(title);
-    section.appendChild(card);
-    section.appendChild(scheduleCTA);
     section.appendChild(buttonContainer);
 
     showSection(mount, section);
